@@ -389,7 +389,7 @@
 #define UI_TEXT_NA_EN               "N/A" // Output for not available
 #define UI_TEXT_YES_EN              "Yes"
 #define UI_TEXT_NO_EN               "No"
-#define UI_TEXT_PRINT_POS_EN        "Printing..."
+#define UI_TEXT_PRINT_POS_EN        "Printing:"
 #define UI_TEXT_PRINTING_EN         "Printing"
 #define UI_TEXT_IDLE_EN             "Idle"
 #define UI_TEXT_NOSDCARD_EN         "No SD card"
@@ -3031,7 +3031,7 @@
 #define UI_TEXT_NA_PL               "Brak" // Output for not available
 #define UI_TEXT_YES_PL              "Tak"
 #define UI_TEXT_NO_PL               "Nie"
-#define UI_TEXT_PRINT_POS_PL        "Drukowanie..."
+#define UI_TEXT_PRINT_POS_PL        "Wydruk:"
 #define UI_TEXT_PRINTING_PL         "Drukowanie"
 #define UI_TEXT_IDLE_PL             "Wolna"
 #define UI_TEXT_NOSDCARD_PL         "Brak karty SD"

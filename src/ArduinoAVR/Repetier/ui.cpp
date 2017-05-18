@@ -51,6 +51,7 @@ uint16_t servoPosition = 1500;
 #endif
 
 static TemperatureController *currHeaterForSetup;    // pointer to extruder or heatbed temperature controller
+uint16_t prtim;    
 
 #if UI_AUTORETURN_TO_MENU_AFTER != 0
 millis_t ui_autoreturn_time = 0;
@@ -1540,13 +1541,34 @@ void UIDisplay::parse(const char *txt,bool ram)
 #if SDSUPPORT
                 if(sd.sdactive && sd.sdmode)
                 {
-                    addStringP(Com::translatedF(UI_TEXT_PRINT_POS_ID));
-                    float percent;
-                    if(sd.filesize < 2000000) percent = sd.sdpos * 100.0 / sd.filesize;
-                    else percent = (sd.sdpos >> 8) * 100.0 / (sd.filesize >> 8);
-                    addFloat(percent, 3, 1);
-                    if(col < MAX_COLS)
-                        uid.printCols[col++] = '%';
+                    // addStringP(Com::translatedF(UI_TEXT_PRINT_POS_ID));
+                    // float percent;
+                    // if(sd.filesize < 2000000) percent = sd.sdpos * 100.0 / sd.filesize;
+                    // else percent = (sd.sdpos >> 8) * 100.0 / (sd.filesize >> 8);
+                    // addFloat(percent, 3, 1);
+                    // if(col < MAX_COLS)
+                        // uid.printCols[col++] = '%';
+					addStringP(Com::translatedF(UI_TEXT_PRINT_POS_ID));
+					float percent;
+					if(sd.filesize < 2000000) percent = sd.sdpos * 100.0 / sd.filesize;
+					else percent = (sd.sdpos >> 8) * 100.0 / (sd.filesize >> 8);
+					addFloat(percent, 3, 1);
+					uint16_t tim = (HAL::timeInMilliseconds() - Printer::msecondsPrinting) / 1000L;   // printing time in seconds
+					if(tim > prtim) prtim = tim;
+					if(Printer::filamentPrinted == 0) prtim = 0;
+					if(col < MAX_COLS)
+						uid.printCols[col++] = '%';
+					if(col < MAX_COLS-6)
+					{
+					  uid.printCols[col++] = ' ';
+					  addInt(prtim / 3600, 2, '0');            // hours
+					  uid.printCols[col++] = ':';
+					  addInt((prtim / 60) % 60, 2, '0');            // minutes
+					}
+					if(col < MAX_COLS-3){
+					  uid.printCols[col++] = ':'; 
+					  addInt(prtim % 60, 2, '0');             //seconds
+					}
                 }
                 else
 #endif
@@ -2258,8 +2280,25 @@ void UIDisplay::refreshPage()
                     //SD Card
                     if(sd.sdactive && u8g_IsBBXIntersection(&u8g, 66, 52 - UI_FONT_SMALL_HEIGHT, 1, UI_FONT_SMALL_HEIGHT))
                     {
-                        printU8GRow(66,52,const_cast<char *>("SD"));
-                        drawHProgressBar(79,46, 46, 6, sdPercent);
+                        // printU8GRow(66,52,const_cast<char *>("SD"));
+                        // drawHProgressBar(79,46, 46, 6, sdPercent);
+						if(sd.sdmode || prtim == 0)
+                        {
+                            printU8GRow(66,52,const_cast<char *>("SD"));
+                            drawHProgressBar(79,46, 46, 6, sdPercent);
+                        }
+                        else
+                        {
+                            col = 0;
+                            addStringP(PSTR("Tm: "));
+                            addInt(prtim / 3600, 2, '0');           // hours
+                            uid.printCols[col++] = ':';
+                            addInt((prtim / 60) % 60, 2, '0');           // minutes
+                            uid.printCols[col++] = ':';
+                            addInt(prtim % 60, 2, '0');           // seconds
+                            uid.printCols[col++] = 0;
+                            printU8GRow(66,52,uid.printCols);     // Printing time instead SD progressbar
+                        }
                     }
 #endif
                     //Status
